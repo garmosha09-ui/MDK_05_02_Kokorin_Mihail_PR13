@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pizza_Кокорин.Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,14 +13,61 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace Pizza_Кокорин.Layouts
 {
     public partial class Main : Page
     {
-        public Main()
+        public MainWindow mainWindow;
+        public List<Dish> dishs = new List<Dish>();
+
+        public Main(MainWindow _mainWindow)
         {
             InitializeComponent();
+            mainWindow = _mainWindow;
+
+            Dish newDish = new Dish();
+            newDish.img = "img-1";
+            newDish.name = "Сливочная";
+            newDish.description = "Пицца - итальянское национальное блюдо в виде круглой открытой дрожжевой лепешки";
+
+            Dish.Ingredient newIngredient = new Dish.Ingredient();
+            newIngredient.name = "соус Кунжутный";
+            newDish.ingredients.Add(newIngredient);
+
+            newIngredient = new Dish.Ingredient();
+            newIngredient.name = "сыр Моцарелла";
+            newDish.ingredients.Add(newIngredient);
+
+            newIngredient = new Dish.Ingredient();
+            newIngredient.name = "сыр Моцарелла мягкий";
+            newDish.ingredients.Add(newIngredient);
+
+            newIngredient = new Dish.Ingredient();
+            newIngredient.name = "помидоры";
+            newDish.ingredients.Add(newIngredient);
+
+            Dish.Sizes newSize = new Dish.Sizes();
+            newSize.size = 23;
+            newSize.price = 380;
+            newSize.wes = 530;
+            newDish.sizes.Add(newSize);
+
+            newSize = new Dish.Sizes();
+            newSize.size = 30;
+            newSize.price = 760;
+            newSize.wes = 560;
+            newDish.sizes.Add(newSize);
+
+            newSize = new Dish.Sizes();
+            newSize.size = 30;
+            newSize.price = 1210;
+            newSize.wes = 730;
+            newDish.sizes.Add(newSize);
+
+            dishs.Add(newDish);
+            CreatePizza();
         }
         /// <summary>
         /// Логика взаимодействия для Main.xaml
@@ -36,10 +84,10 @@ namespace Pizza_Кокорин.Layouts
                 if (i > 0) global.Margin = new Thickness(0, 10, 0, 0);
 
                 Image logo = new Image();
-                if (File.Exists(mainwindow.localPath + @"\image\dish\" + dishs[i].img + ".png"))
-                    logo.Source = new BitmapImage(new Uri(mainwindow.localPath + @"\image\dish\" + dishs[i].img + ".png"));
+                if (File.Exists(mainWindow.localPath + @"\image\dish\" + dishs[i].img + ".png"))
+                    logo.Source = new BitmapImage(new Uri(mainWindow.localPath + @"\image\dish\" + dishs[i].img + ".png"));
                 else
-                    logo.Source = new BitmapImage(new Uri(mainwindow.localPath + @"\image\icon.png"));
+                    logo.Source = new BitmapImage(new Uri(mainWindow.localPath + @"\image\icon.png"));
 
                 logo.HorizontalAlignment = HorizontalAlignment.Left;
                 logo.Height = 50;
@@ -105,7 +153,7 @@ namespace Pizza_Кокорин.Layouts
                 Button minus = new Button();
                 TextBox count = new TextBox();
                 Button plus = new Button();
-                TextBox order = new TextBox();
+                CheckBox order = new CheckBox();
 
                 button1.Content = dishs[i].sizes[0].size + " см.";
                 button1.HorizontalAlignment = HorizontalAlignment.Right;
@@ -131,15 +179,39 @@ namespace Pizza_Кокорин.Layouts
                     count.Text = dishs[int.Parse(button1.Tag.ToString())].sizes[0].countOrder.ToString();
                     order.IsChecked = dishs[int.Parse(button1.Tag.ToString())].sizes[0].orders;
                 };
+                global.Children.Add(button1);
+
+                button2.Content = dishs[i].sizes[1].size + " см.";
+                button2.HorizontalAlignment = HorizontalAlignment.Right;
+                button2.VerticalAlignment = VerticalAlignment.Top;
+                button2.Margin = new Thickness(0, 10, 60, 0);
+                button2.Width = 45;
+                button2.Tag = i;
+                button2.Click += delegate
+                {
+                    price.Content = "Цена: " + dishs[int.Parse(button2.Tag.ToString())].sizes[1].price + " р.";
+                    wes.Content = "Вес: " + dishs[int.Parse(button2.Tag.ToString())].sizes[1].wes + " г.";
+                    button2.Background = Brushes.White;
+                    button2.Foreground = (Brush)bc.ConvertFrom("#FFDD3333");
+
+                    button1.Background = (Brush)bc.ConvertFrom("#FFDD3333");
+                    button1.Foreground = Brushes.White;
+                    button3.Background = (Brush)bc.ConvertFrom("#FFDD3333");
+                    button3.Foreground = Brushes.White;
+
+                    dishs[int.Parse(button1.Tag.ToString())].activeSize = 1;
+                    count.Text = dishs[int.Parse(button1.Tag.ToString())].sizes[1].countOrder.ToString();
+                    order.IsChecked = dishs[int.Parse(button1.Tag.ToString())].sizes[1].orders;
+                };
                 global.Children.Add(button2);
 
                 button3.Content = dishs[i].sizes[2].size + " см.";
-                button1.HorizontalAlignment = HorizontalAlignment.Right;
-                button1.VerticalAlignment = VerticalAlignment.Top;
-                button1.Margin = new Thickness(0, 10, 10, 0);
-                button1.Width = 45;
-                button1.Tag = i;
-                button1.Click += delegate
+                button3.HorizontalAlignment = HorizontalAlignment.Right;
+                button3.VerticalAlignment = VerticalAlignment.Top;
+                button3.Margin = new Thickness(0, 10, 10, 0);
+                button3.Width = 45;
+                button3.Tag = i;
+                button3.Click += delegate
                 {
                     price.Content = "Цена: " + dishs[int.Parse(button2.Tag.ToString())].sizes[2].price + " р.";
                     wes.Content = "Вес: " + dishs[int.Parse(button2.Tag.ToString())].sizes[2].wes + " г.";
@@ -211,7 +283,7 @@ namespace Pizza_Кокорин.Layouts
                 };
                 global.Children.Add(plus);
 
-                order.Content = "0";
+                order.Content = "Выбрать";
                 order.HorizontalAlignment = HorizontalAlignment.Right;
                 order.VerticalAlignment = VerticalAlignment.Bottom;
                 order.Margin = new Thickness(0, 0, 128, 13);
